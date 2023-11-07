@@ -1,0 +1,43 @@
+version: '3.8'
+name: makers-deployment
+services:
+ db:
+   image: mysql:5.7.16
+   env_file: .env
+   volumes:
+     - mysql:/var/lib/mysql
+
+ api:
+   build: 
+     context: api
+     dockerfile: Dockerfile.prod
+   env_file: 
+      - .env
+      - .aws
+   environment:
+     - MYSQL_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db/${MYSQL_DATABASE}
+   depends_on:
+     - db
+
+ api-gateway:
+   build:
+     context: .
+     dockerfile: nginx.dockerfile
+   ports:
+     - "80:80"
+   depends_on:
+     - api
+     - web
+
+ web:
+    build: 
+      context: frontend
+      dockerfile: Dockerfile.prod
+    env_file: .env
+    depends_on:
+      - api
+    ports:
+      - "4173:4173"
+   
+volumes:
+ mysql:
