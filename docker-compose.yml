@@ -21,7 +21,7 @@ services:
 
  api-gateway:
    build:
-     context: .
+     context: api-gateway
      dockerfile: nginx.dockerfile
    ports:
      - "80:80"
